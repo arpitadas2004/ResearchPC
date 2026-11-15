@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PC &amp; Time Slots - ResearchPC</title>
+    <meta name="description" content="Administrator management console for research PC workstations and schedulable time slots." />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body class="page-admin-pcs-slots">
+    <div class="portal-layout">
+      <!-- Left Sidebar Navigation -->
+      <aside class="portal-sidebar">
+        <div class="sidebar-header">
+          <a href="index.html" class="brand-link">
+            <div class="brand-badge">RP</div>
+            <span>ResearchPC</span>
+          </a>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="admin-dashboard.html" class="sidebar-item">
+            <span class="sidebar-item-icon">▤</span>
+            <span>Dashboard</span>
+          </a>
+
+          <a href="admin-requests.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📋</span>
+            <span>Manage Requests</span>
+          </a>
+
+          <!-- Active: PC & Time Slots -->
+          <a href="admin-pcs-slots.html" class="sidebar-item active">
+            <span class="sidebar-item-icon">💻</span>
+            <span>PC &amp; Time Slots</span>
+          </a>
+
+          <a href="admin-allocations.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📅</span>
+            <span>Allocations</span>
+          </a>
+
+          <a href="admin-logs.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📜</span>
+            <span>Activity Logs</span>
+          </a>
+
+          <a href="admin-users.html" class="sidebar-item">
+            <span class="sidebar-item-icon">👥</span>
+            <span>Users</span>
+          </a>
+
+          <div class="sidebar-divider"></div>
+
+          <!-- Logout Button -->
+          <button type="button" class="sidebar-item" onclick="handleLogout()">
+            <span class="sidebar-item-icon">⇥</span>
+            <span>Logout</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div>Administrator Session Verified</div>
+          <button type="button" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: 0.5rem; font-size: 0.75rem;" onclick="openContactSupportModal()">
+            Contact Support
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Portal Viewport -->
+      <div class="portal-main">
+        <!-- Top Bar -->
+        <header class="portal-topbar">
+          <div class="topbar-left">
+            <span class="topbar-title">Admin Portal</span>
+          </div>
+
+          <div class="topbar-right">
+            <button
+              type="button"
+              id="theme-toggle-btn"
+              class="btn btn-outline btn-sm theme-toggle-btn"
+              onclick="toggleTheme()"
+              aria-label="Toggle dark and light theme"
+              title="Toggle theme (Alt + T)"
+            >
+              <span class="theme-icon" aria-hidden="true">🌙</span>
+              <span class="theme-label">Theme</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+            <span class="admin-name-badge" id="topbar-admin-name">Administrator</span>
+          </div>
+        </header>
+
+        <!-- Main Body Content -->
+        <main class="portal-body">
+          <div class="dashboard-heading">
+            <span class="kicker">INFRASTRUCTURE INVENTORY &amp; SCHEDULING</span>
+            <h1>PC &amp; Time Slots</h1>
+            <p>Configure laboratory research workstations, toggle maintenance state, and manage daily time slot windows.</p>
+          </div>
+
+          <!-- Two-Tab Switcher -->
+          <div class="admin-tabs-bar" role="tablist" aria-label="Infrastructure management tabs">
+            <button
+              type="button"
+              id="tab-btn-pcs"
+              class="admin-tab-btn active"
+              role="tab"
+              aria-selected="true"
+              aria-controls="panel-research-pcs"
+              onclick="switchPcSlotTab('pcs')"
+            >
+              💻 Research PCs
+            </button>
+            <button
+              type="button"
+              id="tab-btn-slots"
+              class="admin-tab-btn"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-time-slots"
+              onclick="switchPcSlotTab('slots')"
+            >
+              🕒 Time Slots
+            </button>
+          </div>
+
+          <!-- Tab Panel 1: Research PCs -->
+          <section id="panel-research-pcs" class="admin-tab-panel active" role="tabpanel" aria-labelledby="tab-btn-pcs">
+            <div class="table-card">
+              <div class="table-header availability-header">
+                <div>
+                  <h2 class="table-title">Research PCs</h2>
+                  <span class="table-subtitle">Manage registered workstation nodes, hardware specifications, and availability status</span>
+                </div>
+                <div class="availability-header-actions">
+                  <div class="table-header-notice" id="admin-pcs-notice" style="display: none;"></div>
+                  <button type="button" id="btn-open-add-pc" class="btn btn-blue btn-sm" onclick="openPcFormModal()">
+                    + Add PC
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>PC Number</th>
+                      <th>Specification</th>
+                      <th>Location</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-pcs-tbody">
+                    <!-- Dynamically populated from rp_pcs -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Tab Panel 2: Time Slots -->
+          <section id="panel-time-slots" class="admin-tab-panel" role="tabpanel" aria-labelledby="tab-btn-slots" style="display: none;">
+            <!-- Add Slot Form Card -->
+            <div class="table-card" style="margin-bottom: 1.5rem;">
+              <div class="table-header">
+                <div>
+                  <h2 class="table-title">Add Time Slot</h2>
+                  <span class="table-subtitle">Schedule a new research computing time window in <code>rp_slots</code></span>
+                </div>
+              </div>
+
+              <div class="form-card-body" style="padding: 1.25rem 1.5rem;">
+                <div id="add-slot-error" class="alert-message alert-error" role="alert" style="margin-bottom: 1rem;"></div>
+                <div id="add-slot-success" class="alert-message alert-success" role="status" style="margin-bottom: 1rem;"></div>
+
+                <form id="add-slot-form" onsubmit="return handleAddTimeSlotSubmit(event)" novalidate>
+                  <div class="slot-add-grid">
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label for="add-slot-date">Date <span style="color: var(--color-danger);">*</span></label>
+                      <input type="date" id="add-slot-date" name="slot_date" class="form-control" required />
+                      <span class="field-error" id="err-add-slot-date"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label for="add-slot-start">Start Time <span style="color: var(--color-danger);">*</span></label>
+                      <input type="time" id="add-slot-start" name="start_time" class="form-control" required />
+                      <span class="field-error" id="err-add-slot-start"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label for="add-slot-end">End Time <span style="color: var(--color-danger);">*</span></label>
+                      <input type="time" id="add-slot-end" name="end_time" class="form-control" required />
+                      <span class="field-error" id="err-add-slot-end"></span>
+                    </div>
+
+                    <div class="slot-add-submit-wrap">
+                      <button type="submit" id="add-slot-submit-btn" class="btn btn-blue" style="width: 100%; justify-content: center;">
+                        + Add Slot
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Time Slots Table Card -->
+            <div class="table-card">
+              <div class="table-header availability-header">
+                <div>
+                  <h2 class="table-title">Configured Time Slots</h2>
+                  <span class="table-subtitle">Slots already assigned to an active allocation cannot be deleted</span>
+                </div>
+                <div class="availability-header-actions">
+                  <div class="table-header-notice" id="admin-slots-notice" style="display: none;"></div>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Start Time</th>
+                      <th>End Time</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-slots-tbody">
+                    <!-- Dynamically populated from rp_slots -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <!-- Portal Footer with Contact Support -->
+        <footer class="site-footer portal-footer">
+          <div class="footer-content">
+            <div class="footer-brand">
+              University DBMS Project · Research Computing Services
+            </div>
+            <div class="footer-nav">
+              <a href="javascript:void(0)" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">Shortcuts (<kbd>Alt+/</kbd>)</a>
+              <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Script file -->
+    <script src="script.js"></script>
+  </body>
+</html>

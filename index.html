@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ResearchPC - Allocation &amp; Scheduling Management</title>
+    <meta name="description" content="University DBMS project for research computer allocation and time-slot scheduling management." />
+    <meta property="og:title" content="ResearchPC - Allocation &amp; Scheduling Management" />
+    <meta property="og:description" content="University DBMS project for research computer allocation and time-slot scheduling management." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="site-header">
+      <div class="container">
+        <a href="index.html" class="brand-link">
+          <div class="brand-badge">RP</div>
+          <span>ResearchPC</span>
+        </a>
+
+        <nav>
+          <ul class="nav-links">
+            <li><a href="index.html" class="nav-link active" aria-keyshortcuts="Alt+H" title="Home (Alt + H)">Home</a></li>
+            <li><a href="#how-it-works" class="nav-link">About</a></li>
+            <li><a href="#faq" class="nav-link" aria-keyshortcuts="Alt+F" title="Frequently Asked Questions (Alt + F)">FAQ</a></li>
+            <li><a href="admin-login.html" class="nav-link" aria-keyshortcuts="Alt+A" title="Admin Portal (Alt + A)">Admin Portal</a></li>
+          </ul>
+        </nav>
+
+        <div class="nav-actions">
+          <button
+            type="button"
+            id="theme-toggle-btn"
+            class="btn btn-outline btn-sm theme-toggle-btn"
+            onclick="toggleTheme()"
+            aria-label="Toggle dark and light theme"
+            title="Toggle theme (Alt + T)"
+          >
+            <span class="theme-icon" aria-hidden="true">🌙</span>
+            <span class="theme-label">Theme</span>
+          </button>
+          <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="View Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+          <a href="login.html" class="btn btn-blue" aria-keyshortcuts="Alt+L" title="Student Login (Alt + L)">Login</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <div class="hero-grid">
+          <!-- Hero Left Column -->
+          <div class="hero-left">
+            <span class="kicker">UNIVERSITY RESEARCH COMPUTING</span>
+            <h1>Research PC Allocation &amp; Scheduling System</h1>
+            <p>
+              A centralized system for students and researchers to request, receive, and manage access to university research computers.
+            </p>
+            <div class="hero-cta">
+              <a href="login.html" class="btn btn-blue">Request Research PC</a>
+              <a href="#how-it-works" class="btn btn-outline">How It Works</a>
+            </div>
+          </div>
+
+          <!-- Hero Right Column: Allocation Overview Card with Grey Placeholder Bars -->
+          <div class="hero-right">
+            <div class="overview-card">
+              <div class="overview-header">
+                <div class="overview-header-left">
+                  <span class="overview-title">Allocation Overview</span>
+                  <span class="overview-tag">LAB: RESEARCH LAB</span>
+                </div>
+                <button
+                  type="button"
+                  id="home-pc-download-report-btn"
+                  class="btn btn-outline btn-sm overview-report-btn"
+                  onclick="downloadOverviewReportPDF()"
+                  title="Download a summary PDF of all currently listed workstations"
+                  aria-label="Download summary PDF report of currently listed workstations"
+                >
+                  <span aria-hidden="true">📄</span>
+                  <span>Download Report</span>
+                </button>
+              </div>
+
+              <div class="overview-search-bar">
+                <div class="search-input-wrap overview-search-wrap">
+                  <span class="search-icon" aria-hidden="true">🔍</span>
+                  <input
+                    type="search"
+                    id="home-pc-search"
+                    class="form-control form-control-sm search-input"
+                    placeholder="Filter by GPU or RAM (e.g. RTX)"
+                    aria-label="Filter displayed workstations by GPU model or RAM capacity"
+                    autocomplete="off"
+                  />
+                  <button
+                    type="button"
+                    id="home-pc-clear-search"
+                    class="search-clear-btn"
+                    style="display: none;"
+                    title="Clear workstation filter"
+                    aria-label="Clear workstation filter"
+                  >&times;</button>
+                </div>
+                <div class="overview-controls-row">
+                  <select
+                    id="home-pc-sort"
+                    class="form-control form-control-sm overview-sort-select"
+                    aria-label="Sort workstations by name or GPU performance"
+                  >
+                    <option value="name">Sort: Name (A–Z)</option>
+                    <option value="gpu_desc">Sort: GPU Performance (High to Low)</option>
+                  </select>
+                  <button
+                    type="button"
+                    id="home-pc-refresh-btn"
+                    class="btn btn-outline btn-sm overview-refresh-btn"
+                    onclick="refreshHomeOverview()"
+                    title="Refresh workstation statuses"
+                    aria-label="Refresh workstation statuses"
+                  >
+                    <span class="refresh-icon" aria-hidden="true">↻</span>
+                    <span class="refresh-label">Refresh</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="overview-summary-strip" id="home-overview-summary">
+                <!-- Populated dynamically by script.js -->
+              </div>
+
+              <div class="placeholder-grid">
+                <!-- Populated dynamically by script.js from rp_pcs and rp_allocations -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works Section (4 Numbered Cards) -->
+      <section class="section-how" id="how-it-works">
+        <div class="section-container">
+          <div class="section-header">
+            <span class="kicker">WORKFLOW PROCESS</span>
+            <h2>How It Works</h2>
+          </div>
+
+          <div class="steps-grid">
+            <!-- Card 01 -->
+            <div class="step-card">
+              <span class="step-num">01</span>
+              <h3>Submit Request</h3>
+              <p>
+                Students submit project details, model requirements, dataset dimensions, and supervisor authorization.
+              </p>
+            </div>
+
+            <!-- Card 02 -->
+            <div class="step-card">
+              <span class="step-num">02</span>
+              <h3>Admin Review</h3>
+              <p>
+                The lab administrator evaluates computational workload, scheduling queue priority, and workstation criteria.
+              </p>
+            </div>
+
+            <!-- Card 03 -->
+            <div class="step-card">
+              <span class="step-num">03</span>
+              <h3>PC &amp; Time Allocation</h3>
+              <p>
+                Approved requests receive designated workstation hardware nodes and non-overlapping compute time slots.
+              </p>
+            </div>
+
+            <!-- Card 04 -->
+            <div class="step-card">
+              <span class="step-num">04</span>
+              <h3>View Schedule</h3>
+              <p>
+                Access approved laboratory terminal schedules, session credentials, and research computing time logs.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Frequently Asked Questions Section -->
+      <section class="section-faq" id="faq">
+        <div class="section-container">
+          <div class="section-header">
+            <span class="kicker">FREQUENTLY ASKED QUESTIONS</span>
+            <h2>Common Inquiries</h2>
+            <p style="color: var(--color-text-muted); font-size: 0.9375rem; margin-top: 0.375rem;">
+              Clear answers regarding workstation reservations, laboratory time windows, and account verification requirements.
+            </p>
+          </div>
+
+          <div class="faq-grid">
+            <!-- FAQ 1: Booking -->
+            <div class="faq-card">
+              <span class="faq-badge">Workstation Booking</span>
+              <h3>How does the PC allocation and booking process work?</h3>
+              <p>
+                Students create an account, complete the 6-digit email verification, and log in to the student dashboard. From there, you can view live PC slot availability, select an available workstation terminal, and submit your research model requirements and supervisor endorsement for administrator approval.
+              </p>
+            </div>
+
+            <!-- FAQ 2: Time Slots -->
+            <div class="faq-card">
+              <span class="faq-badge">Time Slots &amp; Schedules</span>
+              <h3>What are the available daily laboratory time slots?</h3>
+              <p>
+                Workstation access is structured into three fixed, non-overlapping windows daily: <strong>09:00 – 11:00</strong>, <strong>11:00 – 13:00</strong>, and <strong>14:00 – 16:00</strong>. This ensures equitable GPU scheduling across ongoing deep learning, simulation, and thesis projects.
+              </p>
+            </div>
+
+            <!-- FAQ 3: Account Requirements -->
+            <div class="faq-card">
+              <span class="faq-badge">Account Requirements</span>
+              <h3>What information is required to register an account?</h3>
+              <p>
+                Registration requires an official university Student ID (e.g. <code>ST04</code> or <code>CSE 033 08432</code>), university email address, phone number, academic department, and graduation batch year. Every new account is secured through a mandatory 6-digit email verification step prior to activation.
+              </p>
+            </div>
+
+            <!-- FAQ 4: Hardware Specifications -->
+            <div class="faq-card">
+              <span class="faq-badge">Hardware &amp; Search</span>
+              <h3>Can I filter workstations by GPU models or RAM capacity?</h3>
+              <p>
+                Yes. The student dashboard features a live search bar within the PC Slot Availability grid. You can filter workstation terminals by hardware specifications like <em>RTX 4090</em>, <em>RTX A5000</em>, <em>RAM</em> capacity (16GB/8GB), or processor tier before selecting a slot.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Blue Bar: Ready to request a research PC? -->
+      <section class="cta-bar-section">
+        <div class="cta-bar">
+          <div>
+            <h3>Ready to request a research PC?</h3>
+            <p>Sign in with your student credentials to submit a compute allocation request.</p>
+          </div>
+          <a href="login.html" class="btn btn-white">Go to Login</a>
+        </div>
+      </section>
+    </main>
+
+    <!-- Dark University Footer -->
+    <footer class="site-footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          University DBMS Project · Research Computing Services
+        </div>
+        <div class="footer-nav">
+          <a href="login.html" title="Student Access (Alt + L)">Student Access</a>
+          <a href="admin-login.html" title="Administrator Access (Alt + A)">Administrator Access</a>
+          <a href="register.html" title="New Student (Alt + R)">New Student</a>
+          <a href="#faq" title="FAQ (Alt + F)">FAQ</a>
+          <a href="javascript:void(0)" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">Shortcuts (<kbd>Alt+/</kbd>)</a>
+          <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Contact Support
+          </button>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

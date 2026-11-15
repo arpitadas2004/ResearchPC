@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Requests - ResearchPC</title>
+    <meta name="description" content="Review and filter student research workstation requests assigned under your supervision." />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body class="page-supervisor-requests">
+    <div class="portal-layout">
+      <!-- Left Sidebar Navigation -->
+      <aside class="portal-sidebar">
+        <div class="sidebar-header">
+          <a href="index.html" class="brand-link">
+            <div class="brand-badge">RP</div>
+            <span>ResearchPC</span>
+          </a>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="supervisor-dashboard.html" class="sidebar-item">
+            <span class="sidebar-item-icon">▤</span>
+            <span>Dashboard</span>
+          </a>
+
+          <!-- Active: Student Requests -->
+          <a href="supervisor-requests.html" class="sidebar-item active">
+            <span class="sidebar-item-icon">📋</span>
+            <span>Student Requests</span>
+          </a>
+
+          <a href="emergency-request.html" class="sidebar-item">
+            <span class="sidebar-item-icon">⚡</span>
+            <span>Emergency Request</span>
+          </a>
+
+          <div class="sidebar-divider"></div>
+
+          <!-- Logout Button -->
+          <button type="button" class="sidebar-item" onclick="handleLogout()">
+            <span class="sidebar-item-icon">⇥</span>
+            <span>Logout</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div>Supervisor Session Verified</div>
+          <button type="button" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: 0.5rem; font-size: 0.75rem;" onclick="openContactSupportModal()">
+            Contact Support
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Portal Viewport -->
+      <div class="portal-main">
+        <!-- Top Bar -->
+        <header class="portal-topbar">
+          <div class="topbar-left">
+            <span class="topbar-title">Supervisor Portal</span>
+          </div>
+
+          <div class="topbar-right">
+            <button
+              type="button"
+              id="theme-toggle-btn"
+              class="btn btn-outline btn-sm theme-toggle-btn"
+              onclick="toggleTheme()"
+              aria-label="Toggle dark and light theme"
+              title="Toggle theme (Alt + T)"
+            >
+              <span class="theme-icon" aria-hidden="true">🌙</span>
+              <span class="theme-label">Theme</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+            <span class="admin-name-badge" id="topbar-supervisor-name">Supervisor</span>
+          </div>
+        </header>
+
+        <!-- Main Body Content -->
+        <main class="portal-body">
+          <div class="dashboard-heading">
+            <span class="kicker">FACULTY SUPERVISION</span>
+            <h1>Student Requests</h1>
+            <p>View, filter, and inspect all student research PC requests linked to your supervisor ID.</p>
+          </div>
+
+          <div class="table-card">
+            <div class="table-header availability-header">
+              <div>
+                <h2 class="table-title">Assigned Student Requests</h2>
+                <span class="table-subtitle">Research workstation submissions under your supervision</span>
+              </div>
+              <div class="availability-header-actions">
+                <div class="table-header-notice" id="supervisor-page-requests-notice" style="display: none;"></div>
+                <a href="emergency-request.html" class="btn btn-blue btn-sm">⚡ Emergency Request</a>
+              </div>
+            </div>
+
+            <!-- Filter, Search & Bulk Action Controls -->
+            <div class="availability-controls-bar">
+              <div class="controls-left">
+                <div class="control-item">
+                  <label for="supervisor-requests-status-filter" class="control-label">Status:</label>
+                  <select id="supervisor-requests-status-filter" class="form-control form-control-sm">
+                    <option value="ALL">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                </div>
+
+                <div class="control-item search-control-item">
+                  <label for="supervisor-requests-search-input" class="control-label">Search:</label>
+                  <div class="search-input-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input
+                      type="search"
+                      id="supervisor-requests-search-input"
+                      class="form-control form-control-sm search-input"
+                      placeholder="Search title, student, or ID..."
+                      aria-label="Search assigned student requests"
+                      autocomplete="off"
+                    />
+                    <button type="button" id="supervisor-requests-clear-search" class="search-clear-btn" style="display: none;" title="Clear search">&times;</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="controls-right" id="supervisor-bulk-actions-wrap">
+                <span class="bulk-selection-count tabular" id="supervisor-bulk-selected-count" aria-live="polite">0 selected</span>
+                <div class="bulk-actions-wrap">
+                  <button
+                    type="button"
+                    id="supervisor-bulk-actions-btn"
+                    class="btn btn-outline btn-sm bulk-actions-btn"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    onclick="toggleSupervisorBulkMenu(event)"
+                    disabled
+                  >
+                    Bulk Actions <span class="bulk-caret" aria-hidden="true">▾</span>
+                  </button>
+                  <div
+                    id="supervisor-bulk-actions-menu"
+                    class="bulk-actions-menu"
+                    role="menu"
+                    aria-labelledby="supervisor-bulk-actions-btn"
+                    style="display: none;"
+                  >
+                    <button
+                      type="button"
+                      class="bulk-action-item bulk-action-approve"
+                      role="menuitem"
+                      onclick="handleSupervisorBulkAction('Approved')"
+                    >
+                      ✓ Approve Selected
+                    </button>
+                    <button
+                      type="button"
+                      class="bulk-action-item bulk-action-reject"
+                      role="menuitem"
+                      onclick="handleSupervisorBulkAction('Rejected')"
+                    >
+                      ✕ Reject Selected
+                    </button>
+                    <div class="bulk-menu-divider" role="separator"></div>
+                    <button
+                      type="button"
+                      class="bulk-action-item bulk-action-clear"
+                      role="menuitem"
+                      onclick="clearSupervisorSelection()"
+                    >
+                      Clear Selection
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="col-checkbox">
+                      <input
+                        type="checkbox"
+                        id="supervisor-select-all-checkbox"
+                        class="table-checkbox"
+                        aria-label="Select all visible requests"
+                      />
+                    </th>
+                    <th>Request ID</th>
+                    <th>Student</th>
+                    <th>Project Title</th>
+                    <th>Priority</th>
+                    <th>Dates</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="supervisor-page-requests-tbody">
+                  <!-- Dynamically populated from script.js rp_requests -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+
+        <!-- Portal Footer with Contact Support -->
+        <footer class="site-footer portal-footer">
+          <div class="footer-content">
+            <div class="footer-brand">
+              University DBMS Project · Research Computing Services
+            </div>
+            <div class="footer-nav">
+              <a href="javascript:void(0)" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">Shortcuts (<kbd>Alt+/</kbd>)</a>
+              <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Script file -->
+    <script src="script.js"></script>
+  </body>
+</html>

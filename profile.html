@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile - ResearchPC</title>
+    <meta name="description" content="View and update your student profile details and account password." />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body class="page-profile">
+    <div class="portal-layout">
+      <!-- Left Sidebar Navigation -->
+      <aside class="portal-sidebar">
+        <div class="sidebar-header">
+          <a href="index.html" class="brand-link">
+            <div class="brand-badge">RP</div>
+            <span>ResearchPC</span>
+          </a>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="student-dashboard.html" class="sidebar-item">
+            <span class="sidebar-item-icon">▤</span>
+            <span>Dashboard</span>
+          </a>
+
+          <a href="new-request.html" class="sidebar-item">
+            <span class="sidebar-item-icon">✚</span>
+            <span>New Request</span>
+          </a>
+
+          <a href="my-requests.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📁</span>
+            <span>My Requests</span>
+          </a>
+
+          <a href="my-schedule.html" class="sidebar-item">
+            <span class="sidebar-item-icon">🕒</span>
+            <span>My Schedule</span>
+          </a>
+
+          <!-- Active: Profile -->
+          <a href="profile.html" class="sidebar-item active">
+            <span class="sidebar-item-icon">👤</span>
+            <span>Profile</span>
+          </a>
+
+          <div class="sidebar-divider"></div>
+
+          <!-- Logout Button -->
+          <button type="button" class="sidebar-item" onclick="handleLogout()">
+            <span class="sidebar-item-icon">⇥</span>
+            <span>Logout</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div>Student Session Verified</div>
+          <button type="button" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: 0.5rem; font-size: 0.75rem;" onclick="openContactSupportModal()">
+            Contact Support
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Portal Viewport -->
+      <div class="portal-main">
+        <!-- Top Bar -->
+        <header class="portal-topbar">
+          <div class="topbar-left">
+            <span class="topbar-title">Student Portal</span>
+          </div>
+
+          <div class="topbar-right">
+            <button
+              type="button"
+              id="theme-toggle-btn"
+              class="btn btn-outline btn-sm theme-toggle-btn"
+              onclick="toggleTheme()"
+              aria-label="Toggle dark and light theme"
+              title="Toggle theme (Alt + T)"
+            >
+              <span class="theme-icon" aria-hidden="true">🌙</span>
+              <span class="theme-label">Theme</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+            <span class="student-id-badge" id="topbar-student-id">ST01</span>
+          </div>
+        </header>
+
+        <!-- Main Body Content -->
+        <main class="portal-body">
+          <div class="dashboard-heading">
+            <span class="kicker">ACCOUNT SETTINGS</span>
+            <h1>Student Profile</h1>
+            <p>Review your university record, update contact or academic details, and manage your password.</p>
+          </div>
+
+          <!-- Profile Details Card -->
+          <div class="table-card" style="margin-bottom: 1.75rem;">
+            <div class="table-header availability-header">
+              <div>
+                <h2 class="table-title">Profile Information</h2>
+                <span class="table-subtitle">Student ID, name, and email are fixed; phone, department, and batch can be edited</span>
+              </div>
+              <div class="availability-header-actions">
+                <button type="button" id="profile-edit-btn" class="btn btn-outline btn-sm" onclick="enableProfileEdit()">
+                  Edit
+                </button>
+                <button type="button" id="profile-cancel-btn" class="btn btn-outline btn-sm" style="display: none;" onclick="cancelProfileEdit()">
+                  Cancel
+                </button>
+                <button type="button" id="profile-save-btn" class="btn btn-blue btn-sm" disabled onclick="saveProfileChanges()">
+                  Save
+                </button>
+              </div>
+            </div>
+
+            <div style="padding: 1.5rem 1.75rem 1.75rem;">
+              <div id="profile-info-error" class="alert-message alert-error"></div>
+              <div id="profile-info-success" class="alert-message alert-success"></div>
+
+              <form id="profile-info-form" onsubmit="return saveProfileChanges(event);" novalidate>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="profile_student_id">Student ID</label>
+                    <input
+                      type="text"
+                      id="profile_student_id"
+                      name="student_id"
+                      class="form-control tabular"
+                      readonly
+                      disabled
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="profile_name">Full Name</label>
+                    <input
+                      type="text"
+                      id="profile_name"
+                      name="name"
+                      class="form-control"
+                      readonly
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="profile_email">University Email</label>
+                    <input
+                      type="email"
+                      id="profile_email"
+                      name="email"
+                      class="form-control"
+                      readonly
+                      disabled
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="profile_phone">Phone Number</label>
+                    <input
+                      type="tel"
+                      id="profile_phone"
+                      name="phone"
+                      class="form-control tabular"
+                      placeholder="+8801XXXXXXXXX"
+                      readonly
+                      required
+                    />
+                    <span id="err-profile_phone" class="field-error"></span>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="profile_department">Department</label>
+                    <input
+                      type="text"
+                      id="profile_department"
+                      name="department"
+                      class="form-control"
+                      placeholder="e.g. CSE"
+                      readonly
+                      required
+                    />
+                    <span id="err-profile_department" class="field-error"></span>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="profile_batch">Batch / Year</label>
+                    <input
+                      type="text"
+                      id="profile_batch"
+                      name="batch"
+                      class="form-control tabular"
+                      placeholder="e.g. 2022"
+                      readonly
+                      required
+                    />
+                    <span id="err-profile_batch" class="field-error"></span>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Change Password Card -->
+          <div class="table-card">
+            <div class="table-header">
+              <div>
+                <h2 class="table-title">Change Password</h2>
+                <span class="table-subtitle">Password must be at least 6 characters long</span>
+              </div>
+            </div>
+
+            <div style="padding: 1.5rem 1.75rem 1.75rem;">
+              <div id="profile-pwd-error" class="alert-message alert-error"></div>
+              <div id="profile-pwd-success" class="alert-message alert-success"></div>
+
+              <form id="change-password-form" onsubmit="return handleChangePasswordSubmit(event);" novalidate>
+                <div class="form-group" style="max-width: 440px;">
+                  <label for="current_password">Current Password</label>
+                  <input
+                    type="password"
+                    id="current_password"
+                    name="current_password"
+                    class="form-control"
+                    placeholder="Enter current password"
+                    required
+                    autocomplete="current-password"
+                  />
+                  <span id="err-current_password" class="field-error"></span>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="new_password">New Password</label>
+                    <input
+                      type="password"
+                      id="new_password"
+                      name="new_password"
+                      class="form-control"
+                      placeholder="At least 6 characters"
+                      required
+                      autocomplete="new-password"
+                    />
+                    <span id="err-new_password" class="field-error"></span>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="confirm_new_password">Confirm Password</label>
+                    <input
+                      type="password"
+                      id="confirm_new_password"
+                      name="confirm_password"
+                      class="form-control"
+                      placeholder="Re-enter new password"
+                      required
+                      autocomplete="new-password"
+                    />
+                    <span id="err-confirm_new_password" class="field-error"></span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="show-profile-passwords" data-toggle-password="current_password,new_password,confirm_new_password" />
+                    <span>Show passwords</span>
+                  </label>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid var(--color-border);">
+                  <button type="submit" id="change-password-btn" class="btn btn-blue">
+                    Change Password
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </main>
+
+        <!-- Portal Footer with Contact Support -->
+        <footer class="site-footer portal-footer">
+          <div class="footer-content">
+            <div class="footer-brand">
+              University DBMS Project · Research Computing Services
+            </div>
+            <div class="footer-nav">
+              <a href="javascript:void(0)" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">Shortcuts (<kbd>Alt+/</kbd>)</a>
+              <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Script file -->
+    <script src="script.js"></script>
+  </body>
+</html>

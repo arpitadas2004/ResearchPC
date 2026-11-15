@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Request - ResearchPC</title>
+    <meta name="description" content="Submit a new research workstation allocation request." />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body class="page-new-request">
+    <div class="portal-layout">
+      <!-- Left Sidebar Navigation -->
+      <aside class="portal-sidebar">
+        <div class="sidebar-header">
+          <a href="index.html" class="brand-link">
+            <div class="brand-badge">RP</div>
+            <span>ResearchPC</span>
+          </a>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="student-dashboard.html" class="sidebar-item">
+            <span class="sidebar-item-icon">▤</span>
+            <span>Dashboard</span>
+          </a>
+
+          <!-- Active: New Request -->
+          <a href="new-request.html" class="sidebar-item active">
+            <span class="sidebar-item-icon">✚</span>
+            <span>New Request</span>
+          </a>
+
+          <a href="my-requests.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📁</span>
+            <span>My Requests</span>
+          </a>
+
+          <a href="my-schedule.html" class="sidebar-item">
+            <span class="sidebar-item-icon">🕒</span>
+            <span>My Schedule</span>
+          </a>
+
+          <a href="profile.html" class="sidebar-item">
+            <span class="sidebar-item-icon">👤</span>
+            <span>Profile</span>
+          </a>
+
+          <div class="sidebar-divider"></div>
+
+          <!-- Logout Button -->
+          <button type="button" class="sidebar-item" onclick="handleLogout()">
+            <span class="sidebar-item-icon">⇥</span>
+            <span>Logout</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div>Student Session Verified</div>
+          <button type="button" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: 0.5rem; font-size: 0.75rem;" onclick="openContactSupportModal()">
+            Contact Support
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Portal Viewport -->
+      <div class="portal-main">
+        <!-- Top Bar -->
+        <header class="portal-topbar">
+          <div class="topbar-left">
+            <span class="topbar-title">Student Portal</span>
+          </div>
+
+          <div class="topbar-right">
+            <button
+              type="button"
+              id="theme-toggle-btn"
+              class="btn btn-outline btn-sm theme-toggle-btn"
+              onclick="toggleTheme()"
+              aria-label="Toggle dark and light theme"
+              title="Toggle theme (Alt + T)"
+            >
+              <span class="theme-icon" aria-hidden="true">🌙</span>
+              <span class="theme-label">Theme</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+            <span class="student-id-badge" id="topbar-student-id">ST01</span>
+          </div>
+        </header>
+
+        <!-- Main Body Content -->
+        <main class="portal-body">
+          <div class="dashboard-heading">
+            <span class="kicker">COMPUTE ALLOCATION</span>
+            <h1>New Research PC Request</h1>
+            <p>Submit project requirements, supervisor endorsement, and preferred lab dates for administrator review.</p>
+          </div>
+
+          <div class="table-card">
+            <div class="table-header">
+              <div>
+                <h2 class="table-title">Request Details</h2>
+                <span class="table-subtitle">All fields are required to queue a workstation allocation request</span>
+              </div>
+              <a href="student-dashboard.html" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+            </div>
+
+            <div style="padding: 1.5rem 1.75rem 1.75rem;">
+              <!-- Green Success Message Banner -->
+              <div id="new-request-success-alert" class="alert-message alert-success"></div>
+
+              <form id="new-request-form" onsubmit="return handleNewRequestSubmit(event);" novalidate>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="project_title">Project Title</label>
+                    <input
+                      type="text"
+                      id="project_title"
+                      name="project_title"
+                      class="form-control"
+                      placeholder="e.g. Flood Prediction Using CNN-LSTM"
+                      required
+                    />
+                    <span id="err-project_title" class="field-error"></span>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="supervisor_id">Supervisor</label>
+                    <select id="supervisor_id" name="supervisor_id" class="form-control" required>
+                      <option value="">-- Select Supervisor --</option>
+                    </select>
+                    <span id="err-supervisor_id" class="field-error"></span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="purpose">Research Purpose</label>
+                  <textarea
+                    id="purpose"
+                    name="purpose"
+                    class="form-control"
+                    rows="3"
+                    placeholder="Describe your research objective, training workload, and why GPU/workstation compute is needed..."
+                    required
+                  ></textarea>
+                  <span id="err-purpose" class="field-error"></span>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="required_from">Required From</label>
+                    <input
+                      type="date"
+                      id="required_from"
+                      name="required_from"
+                      class="form-control tabular"
+                      required
+                    />
+                    <span id="err-required_from" class="field-error"></span>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="required_to">Required To</label>
+                    <input
+                      type="date"
+                      id="required_to"
+                      name="required_to"
+                      class="form-control tabular"
+                      required
+                    />
+                    <span id="err-required_to" class="field-error"></span>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="model_type">Model Type</label>
+                    <input
+                      type="text"
+                      id="model_type"
+                      name="model_type"
+                      class="form-control"
+                      placeholder="e.g. Vision Transformer, CNN-LSTM, XGBoost"
+                      required
+                    />
+                    <span id="err-model_type" class="field-error"></span>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="dataset_size">Dataset Size</label>
+                    <input
+                      type="text"
+                      id="dataset_size"
+                      name="dataset_size"
+                      class="form-control"
+                      placeholder="e.g. 25 GB"
+                      required
+                    />
+                    <span id="err-dataset_size" class="field-error"></span>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" name="priority" class="form-control" required>
+                      <option value="">-- Select Priority --</option>
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
+                    </select>
+                    <span id="err-priority" class="field-error"></span>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.75rem; padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
+                  <a href="student-dashboard.html" class="btn btn-outline">Cancel</a>
+                  <button type="submit" id="new-request-submit-btn" class="btn btn-blue">
+                    Submit Request
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </main>
+
+        <!-- Portal Footer with Contact Support -->
+        <footer class="site-footer portal-footer">
+          <div class="footer-content">
+            <div class="footer-brand">
+              University DBMS Project · Research Computing Services
+            </div>
+            <div class="footer-nav">
+              <a href="javascript:void(0)" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">Shortcuts (<kbd>Alt+/</kbd>)</a>
+              <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Script file -->
+    <script src="script.js"></script>
+  </body>
+</html>

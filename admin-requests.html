@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Requests - ResearchPC</title>
+    <meta name="description" content="Administrator console to review, filter, approve with PC and slot assignment, or reject student research PC requests." />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body class="page-admin-requests">
+    <div class="portal-layout">
+      <!-- Left Sidebar Navigation -->
+      <aside class="portal-sidebar">
+        <div class="sidebar-header">
+          <a href="index.html" class="brand-link">
+            <div class="brand-badge">RP</div>
+            <span>ResearchPC</span>
+          </a>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="admin-dashboard.html" class="sidebar-item">
+            <span class="sidebar-item-icon">▤</span>
+            <span>Dashboard</span>
+          </a>
+
+          <!-- Active: Manage Requests -->
+          <a href="admin-requests.html" class="sidebar-item active">
+            <span class="sidebar-item-icon">📋</span>
+            <span>Manage Requests</span>
+          </a>
+
+          <a href="admin-pcs-slots.html" class="sidebar-item">
+            <span class="sidebar-item-icon">💻</span>
+            <span>PC &amp; Time Slots</span>
+          </a>
+
+          <a href="admin-allocations.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📅</span>
+            <span>Allocations</span>
+          </a>
+
+          <a href="admin-logs.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📜</span>
+            <span>Activity Logs</span>
+          </a>
+
+          <a href="admin-users.html" class="sidebar-item">
+            <span class="sidebar-item-icon">👥</span>
+            <span>Users</span>
+          </a>
+
+          <div class="sidebar-divider"></div>
+
+          <!-- Logout Button -->
+          <button type="button" class="sidebar-item" onclick="handleLogout()">
+            <span class="sidebar-item-icon">⇥</span>
+            <span>Logout</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div>Administrator Session Verified</div>
+          <button type="button" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: 0.5rem; font-size: 0.75rem;" onclick="openContactSupportModal()">
+            Contact Support
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Portal Viewport -->
+      <div class="portal-main">
+        <!-- Top Bar -->
+        <header class="portal-topbar">
+          <div class="topbar-left">
+            <span class="topbar-title">Admin Portal</span>
+          </div>
+
+          <div class="topbar-right">
+            <button
+              type="button"
+              id="theme-toggle-btn"
+              class="btn btn-outline btn-sm theme-toggle-btn"
+              onclick="toggleTheme()"
+              aria-label="Toggle dark and light theme"
+              title="Toggle theme (Alt + T)"
+            >
+              <span class="theme-icon" aria-hidden="true">🌙</span>
+              <span class="theme-label">Theme</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+            <span class="admin-name-badge" id="topbar-admin-name">Administrator</span>
+          </div>
+        </header>
+
+        <!-- Main Body Content -->
+        <main class="portal-body">
+          <div class="dashboard-heading">
+            <span class="kicker">REQUEST GOVERNANCE</span>
+            <h1>Manage Requests</h1>
+            <p>Review all student research compute requests, filter by status or priority, assign workstations and time slots, or reject pending items.</p>
+          </div>
+
+          <div class="table-card">
+            <div class="table-header availability-header">
+              <div>
+                <h2 class="table-title">All Research Requests</h2>
+                <span class="table-subtitle">Live shared queue synchronized with Admin Dashboard &amp; PC Slot Availability</span>
+              </div>
+              <div class="availability-header-actions">
+                <div class="table-header-notice" id="admin-manage-requests-notice" style="display: none;"></div>
+                <a href="admin-dashboard.html" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+              </div>
+            </div>
+
+            <!-- Filter & Search Controls -->
+            <div class="availability-controls-bar">
+              <div class="controls-left">
+                <div class="control-item">
+                  <label for="admin-requests-status-filter" class="control-label">Status:</label>
+                  <select id="admin-requests-status-filter" class="form-control form-control-sm">
+                    <option value="ALL">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                </div>
+
+                <div class="control-item">
+                  <label for="admin-requests-priority-filter" class="control-label">Priority:</label>
+                  <select id="admin-requests-priority-filter" class="form-control form-control-sm">
+                    <option value="ALL">All Priorities</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Normal">Normal</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
+
+                <div class="control-item search-control-item">
+                  <label for="admin-requests-search-input" class="control-label">Search:</label>
+                  <div class="search-input-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input
+                      type="search"
+                      id="admin-requests-search-input"
+                      class="form-control form-control-sm search-input"
+                      placeholder="Search title, student, or ID..."
+                      aria-label="Search requests by project title, student ID, student name, or request ID"
+                      autocomplete="off"
+                    />
+                    <button type="button" id="admin-requests-clear-search" class="search-clear-btn" style="display: none;" title="Clear search">&times;</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Request ID</th>
+                    <th>Student ID &amp; Name</th>
+                    <th>Project Title</th>
+                    <th>Priority</th>
+                    <th>Dates</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-manage-requests-tbody">
+                  <!-- Dynamically populated from script.js shared storage -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+
+        <!-- Portal Footer with Contact Support -->
+        <footer class="site-footer portal-footer">
+          <div class="footer-content">
+            <div class="footer-brand">
+              University DBMS Project · Research Computing Services
+            </div>
+            <div class="footer-nav">
+              <a href="javascript:void(0)" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">Shortcuts (<kbd>Alt+/</kbd>)</a>
+              <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Script file -->
+    <script src="script.js"></script>
+  </body>
+</html>

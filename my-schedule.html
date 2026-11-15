@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Schedule - ResearchPC</title>
+    <meta name="description" content="View your confirmed research PC allocations, next booking, and export your personal schedule." />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body class="page-my-schedule">
+    <div class="portal-layout">
+      <!-- Left Sidebar Navigation -->
+      <aside class="portal-sidebar">
+        <div class="sidebar-header">
+          <a href="index.html" class="brand-link">
+            <div class="brand-badge">RP</div>
+            <span>ResearchPC</span>
+          </a>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="student-dashboard.html" class="sidebar-item">
+            <span class="sidebar-item-icon">▤</span>
+            <span>Dashboard</span>
+          </a>
+
+          <a href="new-request.html" class="sidebar-item">
+            <span class="sidebar-item-icon">✚</span>
+            <span>New Request</span>
+          </a>
+
+          <a href="my-requests.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📁</span>
+            <span>My Requests</span>
+          </a>
+
+          <!-- Active: My Schedule -->
+          <a href="my-schedule.html" class="sidebar-item active">
+            <span class="sidebar-item-icon">🕒</span>
+            <span>My Schedule</span>
+          </a>
+
+          <a href="profile.html" class="sidebar-item">
+            <span class="sidebar-item-icon">👤</span>
+            <span>Profile</span>
+          </a>
+
+          <div class="sidebar-divider"></div>
+
+          <!-- Logout Button -->
+          <button type="button" class="sidebar-item" onclick="handleLogout()">
+            <span class="sidebar-item-icon">⇥</span>
+            <span>Logout</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div>Student Session Verified</div>
+          <button type="button" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: 0.5rem; font-size: 0.75rem;" onclick="openContactSupportModal()">
+            Contact Support
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Portal Viewport -->
+      <div class="portal-main">
+        <!-- Top Bar -->
+        <header class="portal-topbar">
+          <div class="topbar-left">
+            <span class="topbar-title">Student Portal</span>
+          </div>
+
+          <div class="topbar-right">
+            <button
+              type="button"
+              id="theme-toggle-btn"
+              class="btn btn-outline btn-sm theme-toggle-btn"
+              onclick="toggleTheme()"
+              aria-label="Toggle dark and light theme"
+              title="Toggle theme (Alt + T)"
+            >
+              <span class="theme-icon" aria-hidden="true">🌙</span>
+              <span class="theme-label">Theme</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+            <span class="student-id-badge" id="topbar-student-id">ST01</span>
+          </div>
+        </header>
+
+        <!-- Main Body Content -->
+        <main class="portal-body">
+          <div class="dashboard-heading">
+            <span class="kicker">ALLOCATED TIME SLOTS</span>
+            <h1>My Schedule</h1>
+            <p>View your confirmed research PC workstation allocations sorted chronologically.</p>
+          </div>
+
+          <!-- Next Booking Box at the Top -->
+          <div class="table-card" id="next-booking-card" style="margin-bottom: 1.5rem;">
+            <div class="table-header availability-header" style="border-bottom: none;">
+              <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                <span class="kicker" style="margin-bottom: 0;">NEXT BOOKING</span>
+                <div class="next-free-box" id="next-booking-box" style="width: fit-content;">
+                  <span class="next-free-label">Next booking:</span>
+                  <strong id="next-booking-text">Checking schedule...</strong>
+                </div>
+              </div>
+              <div class="availability-header-actions">
+                <button
+                  type="button"
+                  id="download-my-schedule-btn"
+                  class="btn btn-outline btn-sm download-schedule-btn"
+                  onclick="exportMyScheduleCSV()"
+                  title="Download your confirmed schedule as CSV"
+                >
+                  <span aria-hidden="true">📥</span> Download Schedule
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirmed Allocations Table -->
+          <div class="table-card">
+            <div class="table-header availability-header">
+              <div>
+                <h2 class="table-title">Confirmed Allocations</h2>
+                <span class="table-subtitle">Chronological list of your assigned research computer slots</span>
+              </div>
+              <div class="table-header-notice" id="my-schedule-notice" style="display: none;"></div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>PC number</th>
+                    <th>PC specification</th>
+                    <th>Project title</th>
+                  </tr>
+                </thead>
+                <tbody id="my-schedule-tbody">
+                  <!-- Dynamically populated from script.js shared storage -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+
+        <!-- Portal Footer with Contact Support -->
+        <footer class="site-footer portal-footer">
+          <div class="footer-content">
+            <div class="footer-brand">
+              University DBMS Project · Research Computing Services
+            </div>
+            <div class="footer-nav">
+              <a href="javascript:void(0)" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">Shortcuts (<kbd>Alt+/</kbd>)</a>
+              <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Script file -->
+    <script src="script.js"></script>
+  </body>
+</html>

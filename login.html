@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Login - ResearchPC</title>
+    <meta name="description" content="Student portal authentication for University Research PC Allocation &amp; Scheduling System." />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="site-header">
+      <div class="container">
+        <a href="index.html" class="brand-link">
+          <div class="brand-badge">RP</div>
+          <span>ResearchPC</span>
+        </a>
+
+        <div class="nav-actions">
+          <a href="index.html" class="nav-link" aria-keyshortcuts="Alt+H" title="Home (Alt + H)">Home</a>
+          <button
+            type="button"
+            id="theme-toggle-btn"
+            class="btn btn-outline btn-sm theme-toggle-btn"
+            onclick="toggleTheme()"
+            aria-label="Toggle dark and light theme"
+            title="Toggle theme (Alt + T)"
+          >
+            <span class="theme-icon" aria-hidden="true">🌙</span>
+            <span class="theme-label">Theme</span>
+          </button>
+          <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+          <a href="supervisor-login.html" class="btn btn-outline btn-sm" title="Supervisor Login">Supervisor Login</a>
+          <a href="admin-login.html" class="btn btn-outline btn-sm" aria-keyshortcuts="Alt+A" title="Admin Portal (Alt + A)">Admin Portal</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Auth Card Container -->
+    <main class="auth-page">
+      <div class="auth-card">
+        <div class="auth-header">
+          <span class="kicker">UNIVERSITY ACCESS</span>
+          <h1>Student Login</h1>
+          <p>Enter your university student credentials to access workstation scheduling.</p>
+        </div>
+
+        <!-- Student Login Form -->
+        <form id="student-login-form" onsubmit="return handleStudentLogin(event);" novalidate>
+          <div class="form-group">
+            <label for="student_id">Student ID</label>
+            <input
+              type="text"
+              id="student_id"
+              name="student_id"
+              class="form-control tabular"
+              placeholder="e.g. ST01 or CSE 033 08432"
+              required
+              autocomplete="username"
+            />
+            <span id="err-student_id" class="field-error"></span>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label-row">
+              <label for="password_hash">Password</label>
+              <a href="javascript:void(0)" onclick="openForgotPassword('student')" class="forgot-link" title="Reset password using 6-digit verification code">Forgot password?</a>
+            </div>
+            <input
+              type="password"
+              id="password_hash"
+              name="password_hash"
+              class="form-control"
+              placeholder="••••••••"
+              required
+              autocomplete="current-password"
+            />
+            <span id="err-password_hash" class="field-error"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="show-password" data-toggle-password="password_hash" />
+              <span>Show password</span>
+            </label>
+          </div>
+
+          <!-- Inline Red Error Alert above the button -->
+          <div id="login-error-alert" class="alert-message alert-error"></div>
+
+          <button type="submit" class="btn btn-blue btn-full" style="margin-top: 0.25rem;">
+            Login
+          </button>
+        </form>
+
+        <div class="preset-accounts-section">
+          <div class="preset-divider"></div>
+          <span class="preset-label">Preset Account:</span>
+          <div class="preset-buttons-row">
+            <button type="button" id="preset-student-btn" class="btn btn-outline btn-sm" onclick="fillStudentPreset('ST01', 'demo123')">Student Account</button>
+          </div>
+        </div>
+
+        <div class="auth-links">
+          <span>Forgot your credentials? <a href="javascript:void(0)" onclick="openForgotPassword('student')">Reset password</a></span>
+          <span>New student? <a href="register.html">Register</a></span>
+          <span style="margin-top: 0.25rem;">
+            Authorized faculty or staff? <a href="supervisor-login.html">Supervisor Login</a> &bull; <a href="admin-login.html">Admin Login</a>
+          </span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Dark University Footer -->
+    <footer class="site-footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          University DBMS Project · Research Computing Services
+        </div>
+        <div class="footer-nav">
+          <a href="index.html">Home</a>
+          <a href="register.html">Student Registration</a>
+          <a href="supervisor-login.html">Supervisor Login</a>
+          <a href="admin-login.html">Admin Login</a>
+          <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Contact Support
+          </button>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "name": "ResearchPC - Allocation & Scheduling Management",
+  "description": "University DBMS project for research computer allocation and time-slot scheduling management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

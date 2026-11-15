@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supervisor Login - ResearchPC</title>
+    <meta name="description" content="Supervisor portal login for Research PC Allocation &amp; Scheduling Management." />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="site-header">
+      <div class="container">
+        <a href="index.html" class="brand-link">
+          <div class="brand-badge">RP</div>
+          <span>ResearchPC</span>
+        </a>
+
+        <div class="nav-actions">
+          <a href="index.html" class="nav-link" aria-keyshortcuts="Alt+H" title="Home (Alt + H)">Home</a>
+          <button
+            type="button"
+            id="theme-toggle-btn"
+            class="btn btn-outline btn-sm theme-toggle-btn"
+            onclick="toggleTheme()"
+            aria-label="Toggle dark and light theme"
+            title="Toggle theme (Alt + T)"
+          >
+            <span class="theme-icon" aria-hidden="true">🌙</span>
+            <span class="theme-label">Theme</span>
+          </button>
+          <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+          <a href="login.html" class="btn btn-outline btn-sm" aria-keyshortcuts="Alt+L" title="Student Login (Alt + L)">Student Login</a>
+          <a href="admin-login.html" class="btn btn-outline btn-sm" aria-keyshortcuts="Alt+A" title="Admin Login (Alt + A)">Admin Login</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Auth Container -->
+    <main class="auth-page">
+      <div class="auth-card">
+        <div class="auth-header">
+          <span class="kicker">FACULTY SUPERVISION ACCESS</span>
+          <h1>Supervisor Login</h1>
+          <p>Sign in with your supervisor credentials to review assigned student research requests.</p>
+        </div>
+
+        <div id="supervisor-step-form">
+          <!-- Supervisor Login Form -->
+          <form id="supervisor-login-form" onsubmit="return handleSupervisorLogin(event);" novalidate>
+            <div class="form-group">
+              <label for="email">Supervisor Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="form-control"
+                placeholder="karim@example.com"
+                required
+                autocomplete="email"
+              />
+              <span id="err-email" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label-row">
+                <label for="password_hash">Password</label>
+                <a href="javascript:void(0)" onclick="openForgotPassword('supervisor')" class="forgot-link" title="Reset supervisor password using 6-digit verification code">Forgot password?</a>
+              </div>
+              <input
+                type="password"
+                id="password_hash"
+                name="password_hash"
+                class="form-control"
+                placeholder="••••••••"
+                required
+                autocomplete="current-password"
+              />
+              <span id="err-password_hash" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="show-supervisor-password" data-toggle-password="password_hash" />
+                <span>Show password</span>
+              </label>
+            </div>
+
+            <!-- Inline Red Error Alert above the button -->
+            <div id="login-error-alert" class="alert-message alert-error"></div>
+
+            <button type="submit" id="supervisor-login-submit-btn" class="btn btn-blue btn-full" style="margin-top: 0.25rem;">
+              Login
+            </button>
+          </form>
+
+          <div class="preset-accounts-section">
+            <div class="preset-divider"></div>
+            <span class="preset-label">Preset Account:</span>
+            <div class="preset-buttons-row">
+              <button type="button" id="preset-supervisor-btn" class="btn btn-outline btn-sm" onclick="fillSupervisorPreset('karim@example.com', 'sup123')">Supervisor Account</button>
+            </div>
+          </div>
+
+          <div class="auth-links">
+            <span>Forgot supervisor password? <a href="javascript:void(0)" onclick="openForgotPassword('supervisor')">Reset credentials</a></span>
+            <span style="font-weight: 500; color: var(--color-text-subtle);">
+              Authorized faculty supervisors only
+            </span>
+            <span style="margin-top: 0.25rem;">
+              Student user? <a href="login.html">Student Login</a> &bull; Administrator? <a href="admin-login.html">Admin Login</a>
+            </span>
+          </div>
+        </div>
+
+        <!-- Verification Step (Step 2 - Supervisor Verification Code) -->
+        <div id="supervisor-step-verify" style="display: none;">
+          <div class="auth-header" style="margin-bottom: 1.25rem;">
+            <span class="kicker">AUTHENTICATION REQUIRED</span>
+            <h2>Enter verification code</h2>
+            <p id="supervisor-verify-subtitle">We sent a 6-digit code to your email. Check your inbox and spam folder.</p>
+          </div>
+
+          <!-- 6 Separate Boxes for the digits -->
+          <div class="digit-inputs-wrap" id="supervisor-digit-wrap">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-box supervisor-digit" data-idx="0" autocomplete="off" />
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-box supervisor-digit" data-idx="1" autocomplete="off" />
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-box supervisor-digit" data-idx="2" autocomplete="off" />
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-box supervisor-digit" data-idx="3" autocomplete="off" />
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-box supervisor-digit" data-idx="4" autocomplete="off" />
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-box supervisor-digit" data-idx="5" autocomplete="off" />
+          </div>
+
+          <!-- Red error message under the boxes -->
+          <div id="supervisor-verify-error" class="verify-error-msg"></div>
+
+          <!-- 5-minute timer & 30-second cooldown resend link -->
+          <div class="verify-meta-row">
+            <span class="timer-text">Code expires in: <strong id="supervisor-verify-timer" class="tabular">05:00</strong></span>
+            <button type="button" id="supervisor-resend-btn" class="btn-resend-link" disabled onclick="handleResendSupervisorCode()">Resend code (30s)</button>
+          </div>
+
+          <button type="button" id="supervisor-verify-btn" class="btn btn-blue btn-full" onclick="handleVerifySupervisorCode()">
+            Verify
+          </button>
+
+          <button type="button" class="btn btn-outline btn-full" style="margin-top: 0.5rem;" onclick="cancelSupervisorVerification()">
+            Back to Login
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Dark University Footer -->
+    <footer class="site-footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          University DBMS Project · Research Computing Services
+        </div>
+        <div class="footer-nav">
+          <a href="index.html">Home</a>
+          <a href="login.html">Student Login</a>
+          <a href="admin-login.html">Admin Login</a>
+          <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Contact Support
+          </button>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

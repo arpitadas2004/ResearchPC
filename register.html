@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Registration - ResearchPC</title>
+    <meta name="description" content="Register a new student account for research workstation allocation." />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="site-header">
+      <div class="container">
+        <a href="index.html" class="brand-link">
+          <div class="brand-badge">RP</div>
+          <span>ResearchPC</span>
+        </a>
+
+        <div class="nav-actions">
+          <a href="index.html" class="nav-link" aria-keyshortcuts="Alt+H" title="Home (Alt + H)">Home</a>
+          <button
+            type="button"
+            id="theme-toggle-btn"
+            class="btn btn-outline btn-sm theme-toggle-btn"
+            onclick="toggleTheme()"
+            aria-label="Toggle dark and light theme"
+            title="Toggle theme (Alt + T)"
+          >
+            <span class="theme-icon" aria-hidden="true">🌙</span>
+            <span class="theme-label">Theme</span>
+          </button>
+          <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+          <a href="login.html" class="btn btn-outline btn-sm" aria-keyshortcuts="Alt+L" title="Student Login (Alt + L)">Student Login</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Registration Container -->
+    <main class="auth-page">
+      <div class="auth-card auth-card-wide">
+        <div class="auth-header">
+          <span class="kicker">STUDENT REGISTRATION</span>
+          <h1>Create Account</h1>
+          <p>Register your university student profile to request compute lab allocations.</p>
+        </div>
+
+        <!-- Green Success Message Banner -->
+        <div id="register-success-alert" class="alert-message alert-success"></div>
+
+        <div id="register-step-form">
+          <!-- Registration Form -->
+          <form id="register-form" onsubmit="return handleStudentRegister(event);" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="student_id">Student ID</label>
+                <input
+                  type="text"
+                  id="student_id"
+                  name="student_id"
+                  class="form-control tabular"
+                  placeholder="e.g. ST04 or CSE 033 08432"
+                  required
+                />
+                <span id="err-student_id" class="field-error"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="name">Full Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  class="form-control"
+                  placeholder="e.g. Tanvir Hossain"
+                  required
+                />
+                <span id="err-name" class="field-error"></span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">University Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-control"
+                  placeholder="student@university.edu"
+                  required
+                />
+                <span id="err-email" class="field-error"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  class="form-control"
+                  placeholder="+8801XXXXXXXXX"
+                  required
+                />
+                <span id="err-phone" class="field-error"></span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="department">Department</label>
+                <input
+                  type="text"
+                  id="department"
+                  name="department"
+                  class="form-control"
+                  placeholder="e.g. Computer Science &amp; Engineering"
+                  required
+                />
+                <span id="err-department" class="field-error"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="batch">Batch / Year</label>
+                <input
+                  type="text"
+                  id="batch"
+                  name="batch"
+                  class="form-control tabular"
+                  placeholder="e.g. 2022"
+                  required
+                />
+                <span id="err-batch" class="field-error"></span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="password_hash">Password</label>
+                <input
+                  type="password"
+                  id="password_hash"
+                  name="password_hash"
+                  class="form-control"
+                  placeholder="••••••••"
+                  required
+                />
+                <span id="err-password_hash" class="field-error"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input
+                  type="password"
+                  id="confirm_password"
+                  name="confirm_password"
+                  class="form-control"
+                  placeholder="••••••••"
+                  required
+                />
+                <span id="err-confirm_password" class="field-error"></span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="show-passwords" data-toggle-password="password_hash" />
+                <span>Show passwords</span>
+              </label>
+            </div>
+
+            <!-- Inline Red Error Alert for sending failure -->
+            <div id="register-error-alert" class="alert-message alert-error"></div>
+
+            <button type="submit" id="register-submit-btn" class="btn btn-blue btn-full" style="margin-top: 0.5rem;">
+              Register
+            </button>
+          </form>
+
+          <div class="auth-links">
+            <span>Already registered? <a href="login.html">Login</a></span>
+          </div>
+        </div>
+
+        <!-- Verification Step (Step 2 - Email Verification) -->
+        <div id="register-step-verify" style="display: none; max-width: 440px; margin: 0 auto;">
+          <div class="auth-header" style="margin-bottom: 1.25rem;">
+            <span class="kicker">EMAIL VERIFICATION</span>
+            <h2>Verify Your Email</h2>
+            <p id="student-verify-subtitle">We sent a 6-digit code to your email. Check your inbox and spam folder.</p>
+          </div>
+
+          <!-- 6 Separate Boxes for the digits -->
+          <div class="digit-inputs-wrap" id="student-digit-wrap">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-box student-digit" data-idx="0" autocomplete="off" />
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-box student-digit" data-idx="1" autocomplete="off" />
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-box student-digit" data-idx="2" autocomplete="off" />
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-box student-digit" data-idx="3" autocomplete="off" />
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-box student-digit" data-idx="4" autocomplete="off" />
+            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-box student-digit" data-idx="5" autocomplete="off" />
+          </div>
+
+          <!-- Red error message under the boxes -->
+          <div id="student-verify-error" class="verify-error-msg"></div>
+
+          <!-- 5-minute timer & 30-second cooldown resend link -->
+          <div class="verify-meta-row">
+            <span class="timer-text">Code expires in: <strong id="student-verify-timer" class="tabular">05:00</strong></span>
+            <button type="button" id="student-resend-btn" class="btn-resend-link" disabled onclick="handleResendStudentCode()">Resend code (30s)</button>
+          </div>
+
+          <button type="button" id="student-verify-btn" class="btn btn-blue btn-full" onclick="handleVerifyStudentCode()">
+            Verify
+          </button>
+
+          <button type="button" class="btn btn-outline btn-full" style="margin-top: 0.5rem;" onclick="cancelStudentVerification()">
+            Back to Registration
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Dark University Footer -->
+    <footer class="site-footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          University DBMS Project · Research Computing Services
+        </div>
+        <div class="footer-nav">
+          <a href="index.html">Home</a>
+          <a href="login.html">Student Login</a>
+          <a href="admin-login.html">Admin Login</a>
+          <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Contact Support
+          </button>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

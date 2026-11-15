@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Portal - ResearchPC</title>
+    <meta name="description" content="Administrator management console for research PC allocation and scheduling." />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body class="page-admin-dashboard">
+    <div class="portal-layout">
+      <!-- Left Sidebar Navigation -->
+      <aside class="portal-sidebar">
+        <div class="sidebar-header">
+          <a href="index.html" class="brand-link">
+            <div class="brand-badge">RP</div>
+            <span>ResearchPC</span>
+          </a>
+        </div>
+
+        <nav class="sidebar-nav">
+          <!-- Active: Dashboard -->
+          <a href="admin-dashboard.html" class="sidebar-item active">
+            <span class="sidebar-item-icon">▤</span>
+            <span>Dashboard</span>
+          </a>
+
+          <a href="admin-requests.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📋</span>
+            <span>Manage Requests</span>
+          </a>
+
+          <a href="admin-pcs-slots.html" class="sidebar-item">
+            <span class="sidebar-item-icon">💻</span>
+            <span>PC &amp; Time Slots</span>
+          </a>
+
+          <a href="admin-allocations.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📅</span>
+            <span>Allocations</span>
+          </a>
+
+          <a href="admin-logs.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📜</span>
+            <span>Activity Logs</span>
+          </a>
+
+          <a href="admin-users.html" class="sidebar-item">
+            <span class="sidebar-item-icon">👥</span>
+            <span>Users</span>
+          </a>
+
+          <div class="sidebar-divider"></div>
+
+          <!-- Logout Button -->
+          <button type="button" class="sidebar-item" onclick="handleLogout()">
+            <span class="sidebar-item-icon">⇥</span>
+            <span>Logout</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div>Administrator Session Verified</div>
+          <button type="button" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: 0.5rem; font-size: 0.75rem;" onclick="openContactSupportModal()">
+            Contact Support
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Portal Viewport -->
+      <div class="portal-main">
+        <!-- Top Bar -->
+        <header class="portal-topbar">
+          <div class="topbar-left">
+            <span class="topbar-title">Admin Portal</span>
+          </div>
+
+          <div class="topbar-right">
+            <button
+              type="button"
+              id="theme-toggle-btn"
+              class="btn btn-outline btn-sm theme-toggle-btn"
+              onclick="toggleTheme()"
+              aria-label="Toggle dark and light theme"
+              title="Toggle theme (Alt + T)"
+            >
+              <span class="theme-icon" aria-hidden="true">🌙</span>
+              <span class="theme-label">Theme</span>
+            </button>
+            <div class="notifications-wrap" id="admin-notifications-wrap">
+              <button
+                type="button"
+                id="admin-notifications-btn"
+                class="btn btn-outline btn-sm notifications-btn"
+                onclick="toggleAdminNotificationsPanel()"
+                aria-haspopup="true"
+                aria-expanded="false"
+                title="View Notifications"
+              >
+                <span aria-hidden="true">🔔</span>
+                <span class="notif-btn-label">Notifications</span>
+                <span id="admin-notif-badge" class="notif-count-badge" style="display: none;">0</span>
+              </button>
+              <div id="admin-notifications-popover" class="notifications-popover" role="region" aria-label="Notifications" style="display: none;">
+                <div class="notifications-popover-header">
+                  <span class="notifications-popover-title">Notifications</span>
+                  <button type="button" class="notifications-clear-btn" onclick="markAdminNotificationsRead()">Mark all read</button>
+                </div>
+                <div id="admin-notifications-list" class="notifications-popover-list">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+            <span class="admin-name-badge" id="topbar-admin-name">Md. Atik Ishrak</span>
+          </div>
+        </header>
+
+        <!-- Main Body Content -->
+        <main class="portal-body">
+          <div class="dashboard-heading">
+            <span class="kicker">LABORATORY GOVERNANCE</span>
+            <h1>Admin Dashboard</h1>
+            <p>Review computational workloads, grant workstation terminal access, and monitor lab capacity.</p>
+          </div>
+
+          <!-- Four Summary Metric Cards -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Student Requests</div>
+              <div class="count-value" id="metric-student-requests">-</div>
+              <div class="metric-sub">Total term submissions</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">Emergency Requests</div>
+              <div class="count-value" id="metric-emergency-requests">-</div>
+              <div class="metric-sub">Fast-track urgent queue</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">Research PCs</div>
+              <div class="count-value" id="metric-pcs">-</div>
+              <div class="metric-sub">Research Lab nodes</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">Time Slots</div>
+              <div class="count-value" id="metric-time-slots">-</div>
+              <div class="metric-sub">Weekly 2-hour windows</div>
+            </div>
+          </div>
+
+          <!-- Recent Requests Table Card -->
+          <div class="table-card">
+            <div class="table-header">
+              <div>
+                <h2 class="table-title">Recent Requests</h2>
+                <span class="table-subtitle">Pending queue requires administrator evaluation for GPU slot assignments</span>
+              </div>
+              <div class="table-header-notice" id="admin-requests-notice">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Request ID</th>
+                    <th>Student ID</th>
+                    <th>Project Title</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-requests-tbody">
+                  <!-- Dynamically populated from script.js mock database -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Emergency Requests List Card -->
+          <div class="table-card" id="admin-emergency-card">
+            <div class="table-header">
+              <div>
+                <h2 class="table-title">Emergency Requests</h2>
+                <span class="table-subtitle">Urgent supervisor escalations stored in <code>rp_emergency</code></span>
+              </div>
+              <div class="table-header-notice" id="admin-emergency-notice" style="display: none;">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Emergency ID</th>
+                    <th>Request ID</th>
+                    <th>Supervisor &amp; Reason</th>
+                    <th>Required Date &amp; Time</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-emergency-tbody">
+                  <!-- Dynamically populated from rp_emergency -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PC Slot Availability Section -->
+          <div class="table-card" id="slot-availability-card">
+            <div class="table-header availability-header">
+              <div>
+                <h2 class="table-title">PC Slot Availability</h2>
+                <span class="table-subtitle">Laboratory workstation terminal allocation grid and active reservations</span>
+              </div>
+              <div class="availability-header-actions">
+                <div class="next-free-box" id="next-free-slot-box">
+                  <span class="next-free-label">Next free:</span>
+                  <strong id="next-free-slot-text">Calculating...</strong>
+                </div>
+                <button
+                  type="button"
+                  id="download-schedule-btn"
+                  class="btn btn-outline btn-sm download-schedule-btn"
+                  onclick="exportScheduleCSV()"
+                  title="Download schedule as CSV"
+                >
+                  <span aria-hidden="true">📥</span> Download Schedule
+                </button>
+              </div>
+            </div>
+
+            <!-- Controls: Date Picker, PC Filter, Legend -->
+            <div class="availability-controls-bar">
+              <div class="controls-left">
+                <div class="control-item">
+                  <label for="slot-date-picker" class="control-label">Date:</label>
+                  <input type="date" id="slot-date-picker" class="form-control form-control-sm" />
+                </div>
+                <div class="control-item">
+                  <label for="pc-filter-select" class="control-label">Filter PC:</label>
+                  <select id="pc-filter-select" class="form-control form-control-sm">
+                    <option value="ALL">All PCs</option>
+                  </select>
+                </div>
+                <div class="control-item search-control-item">
+                  <label for="pc-hardware-search" class="control-label">Search Spec:</label>
+                  <div class="search-input-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input
+                      type="search"
+                      id="pc-hardware-search"
+                      class="form-control form-control-sm search-input"
+                      placeholder="Search specs (e.g. RTX, RAM, i7)..."
+                      aria-label="Filter PCs by hardware specification"
+                      autocomplete="off"
+                    />
+                    <button type="button" id="clear-search-btn" class="search-clear-btn" style="display: none;" title="Clear search">&times;</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Color Legend -->
+              <div class="availability-legend">
+                <span class="legend-item"><span class="legend-swatch swatch-available"></span> Available</span>
+                <span class="legend-item"><span class="legend-swatch swatch-booked"></span> Booked</span>
+                <span class="legend-item"><span class="legend-swatch swatch-pending"></span> Pending</span>
+              </div>
+            </div>
+
+            <!-- Empty slots warning banner (Rule 8) -->
+            <div id="empty-slots-warning" class="empty-slots-warning" style="display: none;">
+              No free slots on this date. Try another date.
+            </div>
+
+            <!-- Slot Grid Table -->
+            <div class="table-responsive">
+              <table class="data-table slot-grid-table">
+                <thead>
+                  <tr>
+                    <th style="min-width: 180px;">Research PC</th>
+                    <th>09:00 - 11:00</th>
+                    <th>11:00 - 13:00</th>
+                    <th>14:00 - 16:00</th>
+                  </tr>
+                </thead>
+                <tbody id="slot-grid-tbody">
+                  <!-- Dynamically populated from script.js -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Admin Summary Row -->
+            <div id="admin-summary-row" class="availability-summary-row">
+              <span id="admin-summary-text">Available: 0 | Booked: 0 | Pending: 0</span>
+            </div>
+          </div>
+        </main>
+
+        <!-- Portal Footer with Contact Support -->
+        <footer class="site-footer portal-footer">
+          <div class="footer-content">
+            <div class="footer-brand">
+              University DBMS Project · Research Computing Services
+              <span class="footer-demo-note">Sample data for demonstration</span>
+            </div>
+            <div class="footer-nav">
+              <a href="javascript:void(0)" class="footer-reset-link" onclick="resetDemoData()">Reset demo data</a>
+              <a href="javascript:void(0)" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">Shortcuts (<kbd>Alt+/</kbd>)</a>
+              <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Script file -->
+    <script src="script.js"></script>
+  </body>
+</html>

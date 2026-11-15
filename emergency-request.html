@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emergency Request - ResearchPC</title>
+    <meta name="description" content="Submit and track urgent research workstation emergency requests under supervisor oversight." />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body class="page-emergency-request">
+    <div class="portal-layout">
+      <!-- Left Sidebar Navigation -->
+      <aside class="portal-sidebar">
+        <div class="sidebar-header">
+          <a href="index.html" class="brand-link">
+            <div class="brand-badge">RP</div>
+            <span>ResearchPC</span>
+          </a>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="supervisor-dashboard.html" class="sidebar-item">
+            <span class="sidebar-item-icon">▤</span>
+            <span>Dashboard</span>
+          </a>
+
+          <a href="supervisor-requests.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📋</span>
+            <span>Student Requests</span>
+          </a>
+
+          <!-- Active: Emergency Request -->
+          <a href="emergency-request.html" class="sidebar-item active">
+            <span class="sidebar-item-icon">⚡</span>
+            <span>Emergency Request</span>
+          </a>
+
+          <div class="sidebar-divider"></div>
+
+          <!-- Logout Button -->
+          <button type="button" class="sidebar-item" onclick="handleLogout()">
+            <span class="sidebar-item-icon">⇥</span>
+            <span>Logout</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div>Supervisor Session Verified</div>
+          <button type="button" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: 0.5rem; font-size: 0.75rem;" onclick="openContactSupportModal()">
+            Contact Support
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Portal Viewport -->
+      <div class="portal-main">
+        <!-- Top Bar -->
+        <header class="portal-topbar">
+          <div class="topbar-left">
+            <span class="topbar-title">Supervisor Portal</span>
+          </div>
+
+          <div class="topbar-right">
+            <button
+              type="button"
+              id="theme-toggle-btn"
+              class="btn btn-outline btn-sm theme-toggle-btn"
+              onclick="toggleTheme()"
+              aria-label="Toggle dark and light theme"
+              title="Toggle theme (Alt + T)"
+            >
+              <span class="theme-icon" aria-hidden="true">🌙</span>
+              <span class="theme-label">Theme</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+            <span class="admin-name-badge" id="topbar-supervisor-name">Supervisor</span>
+          </div>
+        </header>
+
+        <!-- Main Body Content -->
+        <main class="portal-body">
+          <div class="dashboard-heading">
+            <span class="kicker">PRIORITY ESCALATION</span>
+            <h1>Emergency Request</h1>
+            <p>Escalate urgent computational deadlines for one of your supervised student requests in <code>rp_emergency</code>.</p>
+          </div>
+
+          <!-- Emergency Request Form Card -->
+          <div class="table-card" style="margin-bottom: 1.75rem;">
+            <div class="table-header">
+              <div>
+                <h2 class="table-title">Submit Emergency Request</h2>
+                <span class="table-subtitle">Select an assigned student request and specify the urgent schedule window</span>
+              </div>
+              <a href="supervisor-dashboard.html" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+            </div>
+
+            <div style="padding: 1.5rem 1.75rem 1.75rem;">
+              <!-- Green Success Message Banner -->
+              <div id="emergency-success-alert" class="alert-message alert-success" role="status"></div>
+
+              <form id="emergency-request-form" onsubmit="return handleEmergencyRequestSubmit(event);" novalidate>
+                <div class="form-group">
+                  <label for="request_id">Student Request</label>
+                  <select id="request_id" name="request_id" class="form-control" required>
+                    <option value="">-- Select Assigned Request --</option>
+                  </select>
+                  <span id="err-request_id" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                  <label for="reason">Emergency Reason</label>
+                  <textarea
+                    id="reason"
+                    name="reason"
+                    class="form-control"
+                    rows="3"
+                    placeholder="Explain the urgent conference deadline, thesis defense, or hardware priority justification..."
+                    required
+                  ></textarea>
+                  <span id="err-reason" class="field-error"></span>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="required_date">Required Date</label>
+                    <input
+                      type="date"
+                      id="required_date"
+                      name="required_date"
+                      class="form-control tabular"
+                      required
+                    />
+                    <span id="err-required_date" class="field-error"></span>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="required_time">Required Time</label>
+                    <input
+                      type="time"
+                      id="required_time"
+                      name="required_time"
+                      class="form-control tabular"
+                      required
+                    />
+                    <span id="err-required_time" class="field-error"></span>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.75rem; padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
+                  <a href="supervisor-dashboard.html" class="btn btn-outline">Cancel</a>
+                  <button type="submit" id="emergency-submit-btn" class="btn btn-blue">
+                    Submit Emergency Request
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Supervisor's Emergency Requests Table Card -->
+          <div class="table-card">
+            <div class="table-header">
+              <div>
+                <h2 class="table-title">My Emergency Requests</h2>
+                <span class="table-subtitle">Submitted escalations for requests under your supervision</span>
+              </div>
+              <div class="table-header-notice" id="supervisor-emergency-notice" style="display: none;">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Emergency ID</th>
+                    <th>Request ID</th>
+                    <th>Reason</th>
+                    <th>Required Date</th>
+                    <th>Required Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="supervisor-emergency-tbody">
+                  <!-- Dynamically populated from rp_emergency -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+
+        <!-- Portal Footer with Contact Support -->
+        <footer class="site-footer portal-footer">
+          <div class="footer-content">
+            <div class="footer-brand">
+              University DBMS Project · Research Computing Services
+            </div>
+            <div class="footer-nav">
+              <a href="javascript:void(0)" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">Shortcuts (<kbd>Alt+/</kbd>)</a>
+              <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Script file -->
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Portal - ResearchPC</title>
+    <meta name="description" content="Student dashboard for research workstation requests and scheduling." />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      (function(){try{var t=localStorage.getItem("rp_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();
+    </script>
+  </head>
+  <body class="page-student-dashboard">
+    <div class="portal-layout">
+      <!-- Left Sidebar Navigation -->
+      <aside class="portal-sidebar">
+        <div class="sidebar-header">
+          <a href="index.html" class="brand-link">
+            <div class="brand-badge">RP</div>
+            <span>ResearchPC</span>
+          </a>
+        </div>
+
+        <nav class="sidebar-nav">
+          <!-- Active: Dashboard -->
+          <a href="student-dashboard.html" class="sidebar-item active">
+            <span class="sidebar-item-icon">▤</span>
+            <span>Dashboard</span>
+          </a>
+
+          <a href="new-request.html" class="sidebar-item">
+            <span class="sidebar-item-icon">✚</span>
+            <span>New Request</span>
+          </a>
+
+          <a href="my-requests.html" class="sidebar-item">
+            <span class="sidebar-item-icon">📁</span>
+            <span>My Requests</span>
+          </a>
+
+          <a href="my-schedule.html" class="sidebar-item">
+            <span class="sidebar-item-icon">🕒</span>
+            <span>My Schedule</span>
+          </a>
+
+          <a href="profile.html" class="sidebar-item">
+            <span class="sidebar-item-icon">👤</span>
+            <span>Profile</span>
+          </a>
+
+          <div class="sidebar-divider"></div>
+
+          <!-- Logout Button -->
+          <button type="button" class="sidebar-item" onclick="handleLogout()">
+            <span class="sidebar-item-icon">⇥</span>
+            <span>Logout</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div>Student Session Verified</div>
+          <button type="button" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: 0.5rem; font-size: 0.75rem;" onclick="openContactSupportModal()">
+            Contact Support
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Portal Viewport -->
+      <div class="portal-main">
+        <!-- Top Bar -->
+        <header class="portal-topbar">
+          <div class="topbar-left">
+            <span class="topbar-title">Student Portal</span>
+          </div>
+
+          <div class="topbar-right">
+            <button
+              type="button"
+              id="theme-toggle-btn"
+              class="btn btn-outline btn-sm theme-toggle-btn"
+              onclick="toggleTheme()"
+              aria-label="Toggle dark and light theme"
+              title="Toggle theme (Alt + T)"
+            >
+              <span class="theme-icon" aria-hidden="true">🌙</span>
+              <span class="theme-label">Theme</span>
+            </button>
+            <div class="notifications-wrap" id="student-notifications-wrap">
+              <button
+                type="button"
+                id="student-notifications-btn"
+                class="btn btn-outline btn-sm notifications-btn"
+                onclick="toggleNotificationsPanel()"
+                aria-haspopup="true"
+                aria-expanded="false"
+                title="View Notifications"
+              >
+                <span aria-hidden="true">🔔</span>
+                <span class="notif-btn-label">Notifications</span>
+                <span id="student-notif-badge" class="notif-count-badge" style="display: none;">0</span>
+              </button>
+              <div id="student-notifications-popover" class="notifications-popover" role="region" aria-label="Notifications" style="display: none;">
+                <div class="notifications-popover-header">
+                  <span class="notifications-popover-title">Notifications</span>
+                  <button type="button" class="notifications-clear-btn" onclick="markStudentNotificationsRead()">Mark all read</button>
+                </div>
+                <div id="student-notifications-list" class="notifications-popover-list">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+            </div>
+            <button type="button" id="dashboard-tour-btn" class="btn btn-outline btn-sm tour-replay-btn" onclick="startDashboardTour(true)" title="Take Dashboard Guided Tour">🧭 Tour</button>
+            <button type="button" class="btn btn-outline btn-sm btn-shortcuts-hint" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">⌨ Shortcuts</button>
+            <span class="student-id-badge" id="topbar-student-id">ST01</span>
+          </div>
+        </header>
+
+        <!-- Main Body Content -->
+        <main class="portal-body">
+          <div class="dashboard-heading">
+            <span class="kicker">OVERVIEW</span>
+            <h1>Welcome, <span id="student-welcome-name">Arpita Das</span></h1>
+            <p>Manage your research computing allocations, lab workstation hours, and submission queues.</p>
+          </div>
+
+          <!-- Three Action Cards -->
+          <div class="action-cards-grid">
+            <a href="new-request.html" id="tour-card-new-request" class="action-card" style="text-decoration: none; color: inherit;">
+              <div class="action-card-top">
+                <div class="action-card-icon">✚</div>
+                <h3>Submit New Request</h3>
+                <p>Request GPU acceleration for deep learning, scientific simulation, or thesis research.</p>
+              </div>
+              <div class="action-card-footer">
+                <span>Start Request &rarr;</span>
+              </div>
+            </a>
+
+            <a href="my-requests.html" id="tour-card-my-requests" class="action-card" style="text-decoration: none; color: inherit;">
+              <div class="action-card-top">
+                <div class="action-card-icon">📁</div>
+                <h3>View My Requests</h3>
+                <p>Track request evaluation stages, supervisor endorsements, and allocation decisions.</p>
+              </div>
+              <div class="action-card-footer">
+                <span>Browse Requests &rarr;</span>
+              </div>
+            </a>
+
+            <a href="my-schedule.html" id="tour-card-my-schedule" class="action-card" style="text-decoration: none; color: inherit;">
+              <div class="action-card-top">
+                <div class="action-card-icon">🕒</div>
+                <h3>My Schedule</h3>
+                <p>Check assigned lab workstation terminals, active access slots, and upcoming windows.</p>
+              </div>
+              <div class="action-card-footer">
+                <span>View Time Slots &rarr;</span>
+              </div>
+            </a>
+          </div>
+
+          <!-- Monthly GPU Utilization Bar Chart Card -->
+          <div class="table-card" id="student-gpu-usage-card">
+            <div class="table-header gpu-chart-header">
+              <div>
+                <h2 class="table-title">Monthly GPU Utilization</h2>
+                <span class="table-subtitle">Total GPU hours utilized across confirmed sessions in <strong id="student-gpu-month-label">Current Month</strong></span>
+              </div>
+              <div class="gpu-chart-header-actions">
+                <div class="table-header-notice" id="student-gpu-total-notice" style="display: none;">
+                  <!-- Populated dynamically -->
+                </div>
+                <div class="gpu-view-toggle" role="group" aria-label="Chart time grouping">
+                  <button type="button" id="gpu-view-week-btn" class="gpu-view-btn active" onclick="setStudentGpuChartView('week')">By Week</button>
+                  <button type="button" id="gpu-view-day-btn" class="gpu-view-btn" onclick="setStudentGpuChartView('day')">By Day</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="gpu-chart-body" id="student-gpu-chart-body">
+              <div id="student-gpu-chart-container" class="gpu-chart-wrap" aria-live="polite">
+                <!-- Dynamically rendered bar chart -->
+              </div>
+              <div id="student-gpu-chart-empty" class="gpu-chart-empty" style="display: none;">
+                No confirmed GPU hours recorded for this month yet. Submit a compute request to reserve workstation time.
+              </div>
+            </div>
+
+            <div class="gpu-chart-footer" id="student-gpu-chart-footer">
+              <!-- Dynamically populated KPI summary & legend -->
+            </div>
+          </div>
+
+          <!-- Recent Requests Table Card -->
+          <div class="table-card" id="student-recent-requests-card">
+            <div class="table-header">
+              <div>
+                <h2 class="table-title">Recent Requests</h2>
+                <span class="table-subtitle">Workstation compute submissions linked to your student ID</span>
+              </div>
+              <div class="table-header-notice" id="student-requests-notice" style="display: none;">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Request ID</th>
+                    <th>Project Title</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="student-requests-tbody">
+                  <!-- Dynamically populated from script.js mock database -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PC Slot Availability Section -->
+          <div class="table-card" id="slot-availability-card">
+            <div class="table-header availability-header">
+              <div>
+                <h2 class="table-title">PC Slot Availability</h2>
+                <span class="table-subtitle">Live workstation terminal availability across daily 4-hour schedules</span>
+              </div>
+              <div class="availability-header-actions">
+                <div class="next-free-box" id="next-free-slot-box">
+                  <span class="next-free-label">Next free:</span>
+                  <strong id="next-free-slot-text">Calculating...</strong>
+                </div>
+                <button
+                  type="button"
+                  id="download-schedule-btn"
+                  class="btn btn-outline btn-sm download-schedule-btn"
+                  onclick="exportScheduleCSV()"
+                  title="Download schedule as CSV"
+                >
+                  <span aria-hidden="true">📥</span> Download Schedule
+                </button>
+              </div>
+            </div>
+
+            <!-- Controls: Date Picker, PC Filter, Legend -->
+            <div class="availability-controls-bar">
+              <div class="controls-left">
+                <div class="control-item">
+                  <label for="slot-date-picker" class="control-label">Date:</label>
+                  <input type="date" id="slot-date-picker" class="form-control form-control-sm" />
+                </div>
+                <div class="control-item">
+                  <label for="pc-filter-select" class="control-label">Filter PC:</label>
+                  <select id="pc-filter-select" class="form-control form-control-sm">
+                    <option value="ALL">All PCs</option>
+                  </select>
+                </div>
+                <div class="control-item search-control-item">
+                  <label for="pc-hardware-search" class="control-label">Search Spec:</label>
+                  <div class="search-input-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input
+                      type="search"
+                      id="pc-hardware-search"
+                      class="form-control form-control-sm search-input"
+                      placeholder="Search specs (e.g. RTX, RAM, i7)..."
+                      aria-label="Filter PCs by hardware specification"
+                      autocomplete="off"
+                    />
+                    <button type="button" id="clear-search-btn" class="search-clear-btn" style="display: none;" title="Clear search">&times;</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Color Legend -->
+              <div class="availability-legend">
+                <span class="legend-item"><span class="legend-swatch swatch-available"></span> Available</span>
+                <span class="legend-item"><span class="legend-swatch swatch-booked"></span> Booked</span>
+                <span class="legend-item"><span class="legend-swatch swatch-pending"></span> Pending</span>
+                <span class="legend-item"><span class="legend-swatch swatch-yourslot"></span> Your slot</span>
+              </div>
+            </div>
+
+            <!-- Empty slots warning banner (Rule 8) -->
+            <div id="empty-slots-warning" class="empty-slots-warning" style="display: none;">
+              No free slots on this date. Try another date.
+            </div>
+
+            <!-- Slot Grid Table -->
+            <div class="table-responsive">
+              <table class="data-table slot-grid-table">
+                <thead>
+                  <tr>
+                    <th style="min-width: 180px;">Research PC</th>
+                    <th>09:00 - 11:00</th>
+                    <th>11:00 - 13:00</th>
+                    <th>14:00 - 16:00</th>
+                  </tr>
+                </thead>
+                <tbody id="slot-grid-tbody">
+                  <!-- Dynamically populated from script.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+
+        <!-- Portal Footer with Contact Support -->
+        <footer class="site-footer portal-footer">
+          <div class="footer-content">
+            <div class="footer-brand">
+              University DBMS Project · Research Computing Services
+              <span class="footer-demo-note">Sample data for demonstration</span>
+            </div>
+            <div class="footer-nav">
+              <a href="javascript:void(0)" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (Alt + /)">Shortcuts (<kbd>Alt+/</kbd>)</a>
+              <button type="button" class="footer-btn-support" onclick="openContactSupportModal()" title="Report booking issues or request system assistance">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Contact Support
+              </button>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Script file -->
+    <script src="script.js"></script>
+  </body>
+</html>
